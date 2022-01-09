@@ -5,11 +5,10 @@ import glob
 import os
 
 
-def main():
-    #To-Do: input throught terminal
-    inputdirectory = "/Users/Vale-chan/Documents/ArtologikExports/EinzelExport"
-    outputdirectory = "/Users/Vale-chan/Documents/ArtologikExports"
-
+def initialising():
+    #To-Do: nicht jedesmal neues MasterCodebuch genereieren & UltraData
+    """This function creates an empty MasterCodebook and an empty UltraData
+    or starts loading an already existing MasterCodebook and UltraData"""
     print("STARTING ULTRADATA!  ＼(〇_ｏ)／")
 
     MasterCodebook = pd.DataFrame({
@@ -36,9 +35,142 @@ def main():
         "VAR9": []
         }
     )
+    
     print("initialised empty UltraData: The Beginning Part II")
+    return MasterCodebook, UltraData
 
-    #To-Do: nicht jedesmal neues MasterCodebuch genereieren & UltraData
+
+def deletewhitespaces(exportdata):
+    """WhiteSpace lösche in "Variable View" und "Data" (die beiden Datenblätter aus dem Excelexport)"""
+    for datasheet in exportdata.keys():
+        for column in exportdata[datasheet]:
+            exportdata[datasheet][column].dtype
+            if exportdata[datasheet][column].dtype == "object":
+                exportdata[datasheet][column] = exportdata[datasheet][column].str.strip()
+    print("all white spaces stripped")
+    return exportdata
+
+
+def expandMasterCodebook(exportdata, matchingtable, MasterCodebook):
+    #TODO innehaue, dasses frogt, ob meh das als alternatives lable will
+    """Finds and matches Labels of the exported data with the labels in the MasterCodebook.
+    New lables are added to the MasterCodebook and to the alternative labes of the new label."""
+    print("find & match labels of exportdata and MasterCodebook")
+    for _,row in exportdata["VariableView"].iterrows():
+        exportlabel = row["Label"]
+        found = False
+
+        #Schaut, ob das Label schon irgendwo in den alternativen Labels vorkommt.
+        #Wenn ja, wird ein Eintrag im "matchingtabel" erstellt und der Loop bricht ab.
+        for ii,xx in enumerate(MasterCodebook["Alternative Labels"]):
+            if exportlabel in xx:
+                matchingtable[row["Variable Name"]] = MasterCodebook["Variable Name"].iloc[ii]
+                found = True
+                break
+
+        #Wenn Eintrag nicht gefunden wurde, wird das Label zu den alternativen Labels hinzugefügt.
+        #Das Label wird danach neu benannt &  das alte und neue Label kommen in's "matchingtable"
+        #Das ganze kommt dann als neue Zeile ins "MasterCodebook"
+        if not found:
+            z = copy.deepcopy(row)
+            z["Alternative Labels"] = [row["Label"]]
+            varnameneu = "VAR" + str((MasterCodebook.shape[0]+1))
+            matchingtable[z["Variable Name"]] = varnameneu
+            z["Variable Name"] = varnameneu
+            MasterCodebook = MasterCodebook.append(z)
+    
+    return matchingtable, MasterCodebook
+
+
+def addmetadata(exportfile, data):
+    """Exstracts the metadata out of the file's name (makes it nicer looking) and adds it to the data"""
+    print("seraching for meta-information")
+    exportname = os.path.basename(exportfile)
+
+    exportname.split("_")
+
+    metainfo = {
+        "Studiengang": "",
+        "Jahr": "20" + exportname.split("_")[0][-2:],
+        "Semester": exportname.split("_")[0][:-2],
+        "Dozent": exportname.split("_")[2],
+        "Fachbereich": "",       
+        "Modulinfo": " ".join(exportname.split("_")[3:])[:-5]
+        }
+
+    print("beautifying meta-information")
+    if (metainfo["Semester"] == "HeS") | (metainfo["Semester"] == "FrS"):
+        metainfo["Semester"] = metainfo["Semester"][:1] + metainfo["Semester"][-1:]
+
+
+    studiengang_fachbereich = exportname.split("_")[1]
+
+    if studiengang_fachbereich[:3] == "Sek":
+        metainfo["Studiengang"] = " ".join(studiengang_fachbereich.split(" ")[:2])
+        metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[2:])
+    elif studiengang_fachbereich[:3] == "KGP":
+        metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
+        metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
+    elif studiengang_fachbereich[:3] == "Mas":
+        metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
+        metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
+    else:
+        raise ValueError(f"Studiengang nicht definiert:\nDatei: {exportname}\nStudiengang_Fachbereich: {studiengang_fachbereich}")
+    
+    data["Studiengang"] = metainfo["Studiengang"]
+    data["Jahr"] = metainfo["Jahr"]
+    data["Semester"] = metainfo["Semester"]
+    data["Dozent"] = metainfo["Dozent"]
+    data["Fachbereich"] = metainfo["Fachbereich"]
+    data["Modulinfo"] = metainfo["Modulinfo"]
+    print("meta-information added to data")
+
+    return data
+
+
+def fitdatatoUltraData(data, UltraData):
+    """Finds columns, which are only occuring in data or UltraData.
+    Those additional columns from UltraData are added to data and vice versa."""
+    print("drawing ven-diagramm to find overlaps")
+    ###Block hier macht "data" und "UltraData" gleich gross###
+    columnsdata = np.asarray(data.columns)
+    columnsultradata = np.asarray(UltraData.columns)
+
+    #Schmeisst Kolonnen aus "data" und "UltraDAta" zusammen
+    union = np.union1d(columnsdata, columnsultradata)
+
+    #Kolonnen, welche nicht in "data" sind (sind in "UltraData") und daher zu "data" hinzugefügt werden müssen
+    notindata = np.setdiff1d(union, columnsdata)
+    #Kolonnen, welche nicht in "UltraData" sind (sind in "data") und daher zu "UltraData" hinzugefügt werden müssen
+    notinultradata = np.setdiff1d(union, columnsultradata)
+
+    for column in notindata:
+        data[column] = np.NaN
+
+    for column in notinultradata:
+        UltraData[column] = np.NaN
+
+    columnsdata = np.asarray(data.columns)
+    columnsultradata = np.asarray(UltraData.columns)
+
+    #Kontrolliert, ob die Kolonnen "data" und "UltraData" gleich sind
+    assert np.array_equal(np.sort(columnsdata), np.sort(columnsultradata))
+    print("overlaps found")
+
+    return(data, UltraData)
+    
+
+
+
+
+
+    
+def main():
+    #To-Do: input throught terminal
+    inputdirectory = "/Users/Vale-chan/Documents/ArtologikExports/EinzelExport"
+    outputdirectory = "/Users/Vale-chan/Documents/ArtologikExports"
+
+    MasterCodebook, UltraData = initialising()
 
     print("starting Mega-Process")
     for exportfile in glob.glob(f"{inputdirectory}/*.xlsx"):
@@ -46,14 +178,8 @@ def main():
         
         exportdata = pd.read_excel(io=exportfile, sheet_name=None, engine="openpyxl")
         print(f"sheets scanned")
-        
-        #WhiteSpace lösche in "Variable View" und "Data" (die beiden Datenblätter aus dem Excelexport)
-        for datasheet in exportdata.keys():
-            for column in exportdata[datasheet]:
-                exportdata[datasheet][column].dtype
-                if exportdata[datasheet][column].dtype == "object":
-                    exportdata[datasheet][column] = exportdata[datasheet][column].str.strip()
-        print("all white spaces stripped")
+
+        exportdata = deletewhitespaces(exportdata)
         
         print("generating matchingtable")
         matchingtable = {"DbID": "VAR1",
@@ -66,65 +192,8 @@ def main():
                          "Fachbereich": "VAR8",
                          "Modulinfo": "VAR9"}
 
-        print("find & match labels of exportdata and MasterCodebook")
-        for _,row in exportdata["VariableView"].iterrows():
-            exportlabel = row["Label"]
-            found = False
+        matchingtable, MasterCodebook = expandMasterCodebook(exportdata, matchingtable, MasterCodebook)
 
-            #Schaut, ob das Label schon irgendwo in den alternativen Labels vorkommt.
-            #Wenn ja, wird ein Eintrag im "matchingtabel" erstellt und der Loop bricht ab.
-            for ii,xx in enumerate(MasterCodebook["Alternative Labels"]):
-                if exportlabel in xx:
-                    matchingtable[row["Variable Name"]] = MasterCodebook["Variable Name"].iloc[ii]
-                    found = True
-                    break
-
-            #Wenn Eintrag nicht gefunden wurde, wird das Label zu den alternativen Labels hinzugefügt.
-            #Das Label wird danach neu benannt &  das alte und neue Label kommen in's "matchingtable"
-            #Das ganze kommt dann als neue Zeile ins "MasterCodebook"
-            if not found:
-                # TODO
-                # innehaue, dasses frogt, ob meh das als alternatives lable will
-                z = copy.deepcopy(row)
-                z["Alternative Labels"] = [row["Label"]]
-                varnameneu = "VAR" + str((MasterCodebook.shape[0]+1))
-                matchingtable[z["Variable Name"]] = varnameneu
-                z["Variable Name"] = varnameneu
-                MasterCodebook = MasterCodebook.append(z)
-        
-        print("seraching for meta-information")
-        exportname = os.path.basename(exportfile)
-
-        exportname.split("_")
-
-        metainfo = {
-            "Studiengang": "",
-            "Jahr": "20" + exportname.split("_")[0][-2:],
-            "Semester": exportname.split("_")[0][:-2],
-            "Dozent": exportname.split("_")[2],
-            "Fachbereich": "",       
-            "Modulinfo": " ".join(exportname.split("_")[3:])[:-5]
-            }
-
-        print("beautifying meta-information")
-        if (metainfo["Semester"] == "HeS") | (metainfo["Semester"] == "FrS"):
-            metainfo["Semester"] = metainfo["Semester"][:1] + metainfo["Semester"][-1:]
-
-
-        studiengang_fachbereich = exportname.split("_")[1]
-
-        if studiengang_fachbereich[:3] == "Sek":
-            metainfo["Studiengang"] = " ".join(studiengang_fachbereich.split(" ")[:2])
-            metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[2:])
-        elif studiengang_fachbereich[:3] == "KGP":
-            metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
-            metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
-        elif studiengang_fachbereich[:3] == "Mas":
-            metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
-            metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
-        else:
-            raise ValueError(f"Studiengang nicht definiert:\nDatei: {exportname}\nStudiengang_Fachbereich: {studiengang_fachbereich}")
-        
         data = exportdata["Data"]
 
         data = data.drop(columns=[
@@ -160,65 +229,20 @@ def main():
                                 "ID"
                                 ])
         
-        data["Studiengang"] = metainfo["Studiengang"]
-        data["Jahr"] = metainfo["Jahr"]
-        data["Semester"] = metainfo["Semester"]
-        data["Dozent"] = metainfo["Dozent"]
-        data["Fachbereich"] = metainfo["Fachbereich"]
-        data["Modulinfo"] = metainfo["Modulinfo"]
-        print("meta-information added to data")
 
+        data = addmetadata(exportfile, data)
+        
         print("applying matchingtable")
         data = data.rename(columns=matchingtable)
         print("matchingtable application completed")
 
-        print("drawing ven-diagramm to find overlaps")
-        ###Block hier macht "data" und "UltraData" gleich gross###
-        columnsdata = np.asarray(data.columns)
-        columnsultradata = np.asarray(UltraData.columns)
-
-        #Schmeisst Kolonnen aus "data" und "UltraDAta" zusammen
-        union = np.union1d(columnsdata, columnsultradata)
-
-        #Kolonnen, welche nicht in "data" sind (sind in "UltraData") und daher zu "data" hinzugefügt werden müssen
-        notindata = np.setdiff1d(union, columnsdata)
-        #Kolonnen, welche nicht in "UltraData" sind (sind in "data") und daher zu "UltraData" hinzugefügt werden müssen
-        notinultradata = np.setdiff1d(union, columnsultradata)
-
-        for column in notindata:
-            data[column] = np.NaN
-
-        for column in notinultradata:
-            UltraData[column] = np.NaN
-
-        columnsdata = np.asarray(data.columns)
-        columnsultradata = np.asarray(UltraData.columns)
-
-        #Kontrolliert, ob die Kolonnen "data" und "UltraData" gleich sind
-        assert np.array_equal(np.sort(columnsdata), np.sort(columnsultradata))
-        print("overlaps found")
+        data, UltraData = fitdatatoUltraData(data, UltraData)
 
         UltraData = UltraData.append(data)
         print("data added to UltraData")
 
     UltraData.to_csv(f"{outputdirectory}/UltraData.csv", index=False)
     MasterCodebook.to_csv(f"{outputdirectory}/MasterCodebook.csv", index=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
