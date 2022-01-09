@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import argparse
 import copy
 import glob
 import os
@@ -161,19 +162,20 @@ def fitdatatoUltraData(data, UltraData):
     
 
 
-
-
-
     
 def main():
-    #To-Do: input throught terminal
-    inputdirectory = "/Users/Vale-chan/Documents/ArtologikExports/EinzelExport"
-    outputdirectory = "/Users/Vale-chan/Documents/ArtologikExports"
+    description = "Fuses different data-tables to one big one and expands a codebook accordingly"
+    cli_args = argparse.ArgumentParser(description=description, add_help=True)
+    cli_args.add_argument('--pathtodatafolder', type=str, action='store', required=True,
+                          help='Path to the folders of the data.cvs-files that should be added to the UltraData.')
+    cli_args.add_argument('--pathtosavingfolder', type=str, action='store', required=True,
+                          help="Path to where the UltraData and MasterCodebook should be saved to.")
+    ARGS = cli_args.parse_args()
 
     MasterCodebook, UltraData = initialising()
 
     print("starting Mega-Process")
-    for exportfile in glob.glob(f"{inputdirectory}/*.xlsx"):
+    for exportfile in glob.glob(f"{ARGS.pathtodatafolder}/*.xlsx"):
         print(f"working on {exportfile}")
         
         exportdata = pd.read_excel(io=exportfile, sheet_name=None, engine="openpyxl")
@@ -241,8 +243,8 @@ def main():
         UltraData = UltraData.append(data)
         print("data added to UltraData")
 
-    UltraData.to_csv(f"{outputdirectory}/UltraData.csv", index=False)
-    MasterCodebook.to_csv(f"{outputdirectory}/MasterCodebook.csv", index=False)
+    UltraData.to_csv(f"{ARGS.pathtosavingfolder}/UltraData.csv", index=False)
+    MasterCodebook.to_csv(f"{ARGS.pathtosavingfolder}/MasterCodebook.csv", index=False)
 
 
 if __name__ == "__main__":
