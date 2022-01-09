@@ -4,37 +4,42 @@ import argparse
 import copy
 import glob
 import os
+import sys
 
 
-def initialising():
-    #To-Do: nicht jedesmal neues MasterCodebuch genereieren & UltraData
+def initialising(outputdirectory):
+    #To-Do: haben die geladenen MasterCodebook/UltraData den richtigen inhalt?
     """This function creates an empty MasterCodebook and an empty UltraData
     or starts loading an already existing MasterCodebook and UltraData"""
     print("STARTING ULTRADATA!  ＼(〇_ｏ)／")
 
-    MasterCodebook = pd.DataFrame({
-        "Variable Name": ["VAR1", "VAR2", "VAR3", "VAR4", "VAR5", "VAR6", "VAR7", "VAR8", "VAR9"],
-        "Label": ["DbID", "Studiengang", "Fakultät", "Geschlecht", "Jahr", "Semester", "Dozent", "Fachbereich", "Modulinfo"],
-        "Alternative Labels": [["DbID"], ["Studiengang"], ["Fakultät"], ["Geschlecht"], ["Jahr"], ["Semester"], ["Dozent"], ["Fachbereich"], ["Modulinfo"]],
-        "Type": ["Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo"],
-        "Data Type": ["Numeric", "String", "String", "Numeric", "Numeric", "String", "String", "String", "String"],
-        "Value Codes": ["none", "none", "1 = phil I\n 2 = phil II", "1 = männlich\n2 = weiblich", "none", "none", "none", "none", "none"],
-        "Missing Code": [999, 999, 999, 999, 999, 999, 999, 999, 999]
-        }
-    )
-    print("initialised empty MasterCodebook: The Beginning Part I")
+    if os.path.exists(f"{outputdirectory}/MasterCodebook.csv") & os.path.exists(f"{outputdirectory}/UltraData.csv"):
+        MasterCodebook = pd.read_csv(f"{outputdirectory}/MasterCodebook.csv")
+        UltraData = pd.read_csv(f"{outputdirectory}/UltraData.csv")   
+    else:
+        MasterCodebook = pd.DataFrame({
+            "Variable Name": ["VAR1", "VAR2", "VAR3", "VAR4", "VAR5", "VAR6", "VAR7", "VAR8", "VAR9"],
+            "Label": ["DbID", "Studiengang", "Fakultät", "Geschlecht", "Jahr", "Semester", "Dozent", "Fachbereich", "Modulinfo"],
+            "Alternative Labels": [["DbID"], ["Studiengang"], ["Fakultät"], ["Geschlecht"], ["Jahr"], ["Semester"], ["Dozent"], ["Fachbereich"], ["Modulinfo"]],
+            "Type": ["Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo", "Metainfo"],
+            "Data Type": ["Numeric", "String", "String", "Numeric", "Numeric", "String", "String", "String", "String"],
+            "Value Codes": ["none", "none", "1 = phil I\n 2 = phil II", "1 = männlich\n2 = weiblich", "none", "none", "none", "none", "none"],
+            "Missing Code": [999, 999, 999, 999, 999, 999, 999, 999, 999]
+            }
+        )
+        print("initialised empty MasterCodebook: The Beginning Part I")
 
-    UltraData = pd.DataFrame({
-        "VAR1": [],
-        "VAR2": [],
-        "VAR3": [],
-        "VAR4": [],
-        "VAR5": [],
-        "VAR6": [],
-        "VAR7": [],
-        "VAR8": [],
-        "VAR9": []
-        }
+        UltraData = pd.DataFrame({
+            "VAR1": [],
+            "VAR2": [],
+            "VAR3": [],
+            "VAR4": [],
+            "VAR5": [],
+            "VAR6": [],
+            "VAR7": [],
+            "VAR8": [],
+            "VAR9": []
+            }
     )
     
     print("initialised empty UltraData: The Beginning Part II")
@@ -83,7 +88,7 @@ def expandMasterCodebook(exportdata, matchingtable, MasterCodebook):
     return matchingtable, MasterCodebook
 
 
-def addmetadata(exportfile, data):
+def addmetadata(exportfile, data, UltraData):
     """Exstracts the metadata out of the file's name (makes it nicer looking) and adds it to the data"""
     print("seraching for meta-information")
     exportname = os.path.basename(exportfile)
@@ -118,15 +123,27 @@ def addmetadata(exportfile, data):
     else:
         raise ValueError(f"Studiengang nicht definiert:\nDatei: {exportname}\nStudiengang_Fachbereich: {studiengang_fachbereich}")
     
-    data["Studiengang"] = metainfo["Studiengang"]
-    data["Jahr"] = metainfo["Jahr"]
-    data["Semester"] = metainfo["Semester"]
-    data["Dozent"] = metainfo["Dozent"]
-    data["Fachbereich"] = metainfo["Fachbereich"]
-    data["Modulinfo"] = metainfo["Modulinfo"]
-    print("meta-information added to data")
+    check = (UltraData["VAR2"] == metainfo["Studiengang"]) &\
+            (UltraData["VAR5"] == int(metainfo["Jahr"])) &\
+            (UltraData["VAR6"] == metainfo["Semester"]) &\
+            (UltraData["VAR7"] == metainfo["Dozent"]) &\
+            (UltraData["VAR8"] == metainfo["Fachbereich"]) &\
+            (UltraData["VAR9"] == metainfo["Modulinfo"])
+    
+    skip = False
+    
+    if check.any():
+        skip = True
+    else:
+        data["Studiengang"] = metainfo["Studiengang"]
+        data["Jahr"] = metainfo["Jahr"]
+        data["Semester"] = metainfo["Semester"]
+        data["Dozent"] = metainfo["Dozent"]
+        data["Fachbereich"] = metainfo["Fachbereich"]
+        data["Modulinfo"] = metainfo["Modulinfo"]
+        print("meta-information added to data")
 
-    return data
+    return data, skip
 
 
 def fitdatatoUltraData(data, UltraData):
@@ -172,7 +189,7 @@ def main():
                           help="Path to where the UltraData and MasterCodebook should be saved to.")
     ARGS = cli_args.parse_args()
 
-    MasterCodebook, UltraData = initialising()
+    MasterCodebook, UltraData = initialising(ARGS.pathtosavingfolder)
 
     print("starting Mega-Process")
     for exportfile in glob.glob(f"{ARGS.pathtodatafolder}/*.xlsx"):
@@ -232,13 +249,20 @@ def main():
                                 ])
         
 
-        data = addmetadata(exportfile, data)
+        data, skip = addmetadata(exportfile, data, UltraData)
         
+        if skip:
+            continue
+
         print("applying matchingtable")
         data = data.rename(columns=matchingtable)
         print("matchingtable application completed")
 
         data, UltraData = fitdatatoUltraData(data, UltraData)
+        
+        #To-Do: Geschlechtswerte zu Zahlenwerte ändern
+        #To-Do: Fachbereichswerte zu Zahlenwerte ändern
+        #To-Do: Kolonentypen ändern?????
 
         UltraData = UltraData.append(data)
         print("data added to UltraData")
