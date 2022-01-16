@@ -183,6 +183,13 @@ def addmetadata(exportfile, data, UltraData):
     return data, skip
 
 
+def recodevalues(data):
+    """The string values for 'Geschlecht' and 'Fakultät' are recoded to numeric values,
+    according to the values in the above defined MasterCodebook"""
+    data = data.replace(to_replace={"phil. I":1, "phil. II":2, "Herr":1, "Frau":2})
+    return data
+
+
 def fitdatatoUltraData(data, UltraData):
     """Finds columns, which are only occuring in data or UltraData.
     Those additional columns from UltraData are added to data and vice versa."""
@@ -291,14 +298,15 @@ def main():
         if skip:
             continue
 
+        data = recodevalues(data)
+
         print("applying matchingtable")
         data = data.rename(columns=matchingtable)
         print("matchingtable application completed")
 
         data, UltraData = fitdatatoUltraData(data, UltraData)
         
-        #To-Do: Geschlechtswerte zu Zahlenwerte ändern
-        #To-Do: Fachbereichswerte zu Zahlenwerte ändern
+
         #To-Do: Kolonentypen ändern?????
 
         UltraData = UltraData.append(data)
