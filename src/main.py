@@ -1,3 +1,4 @@
+from pickle import TRUE
 import pandas as pd
 import numpy as np
 import argparse
@@ -29,8 +30,7 @@ def initialising(outputdirectory):
             "Data Type": ["Numeric", "String", "String", "Numeric", "Numeric", "String", "String", "String", "String"],
             "Value Codes": ["none", "none", "1 = phil I\n 2 = phil II", "1 = männlich\n2 = weiblich", "none", "none", "none", "none", "none"],
             "Missing Code": [999, 999, 999, 999, 999, 999, 999, 999, 999]
-            }
-        )
+            })
         print("initialised empty MasterCodebook: The Beginning Part I")
 
         UltraData = pd.DataFrame({
@@ -43,8 +43,7 @@ def initialising(outputdirectory):
             "VAR7": [],
             "VAR8": [],
             "VAR9": []
-            }
-    )
+            })
     
     print("initialised empty UltraData: The Beginning Part II")
     return MasterCodebook, UltraData
@@ -54,9 +53,9 @@ def deletewhitespaces(exportdata):
     """WhiteSpace lösche in "Variable View" und "Data" (die beiden Datenblätter aus dem Excelexport)"""
     for datasheet in exportdata.keys():
         for column in exportdata[datasheet]:
-            exportdata[datasheet][column].dtype
             if exportdata[datasheet][column].dtype == "object":
                 exportdata[datasheet][column] = exportdata[datasheet][column].str.strip()
+            exportdata[datasheet] = exportdata[datasheet].rename(columns={column: column.strip()})
     print("all white spaces stripped")
     return exportdata
 
@@ -68,6 +67,7 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
     print("find & match labels of exportdata and MasterCodebook")
     for _,row in exportdata["VariableView"].iterrows():
         exportlabel = row["Label"]
+        print(row["Variable Name"])
         found = False
 
         #Schaut, ob das Label schon irgendwo in den alternativen Labels vorkommt.
@@ -79,7 +79,7 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                 break
 
         #Wenn Eintrag nicht gefunden wurde, wird das Label zu den alternativen Labels hinzugefügt.
-        #Das Label wird danach neu benannt &  das alte und neue Label kommen in's "matchingtable"
+        #Das Label wird danach neu benannt & das alte und neue Label kommen in's "matchingtable"
         #Das ganze kommt dann als neue Zeile ins "MasterCodebook"
         if not found:
             VIOLET = '\033[95m'
@@ -98,20 +98,25 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                     varnameneu = "VAR" + str((MasterCodebook.shape[0]+1))
                     matchingtable[z["Variable Name"]] = varnameneu
                     z["Variable Name"] = varnameneu
-                    MasterCodebook = MasterCodebook.append(z)
+                    MasterCodebook = MasterCodebook.append(z, ignore_index=True)
                     break
                 elif isnumber(text):
                     if int(text) > MasterCodebook.shape[0]:
                         print(f"{YELLOW}Invalid variable name. Try again.{ENDC}")
                         continue
+                    if ("VAR"+text in list(matchingtable.values())):
+                        print(f"{YELLOW}Double entry detected! It is not possible to add two new variables to the same existing one.{ENDC}")
+                        print(f"{YELLOW}Invalid input. Try again.{ENDC}")
+                        continue
                     position = np.array(MasterCodebook["Variable Name"] == "VAR"+text)
                     temp = MasterCodebook.loc[position]["Alternative Labels"][np.where(position)[0][0]]
                     temp.append(row["Label"])
                     MasterCodebook["Alternative Labels"].loc[np.where(position)[0][0]] = temp
+                    z = copy.deepcopy(row)
+                    matchingtable[z["Variable Name"]] = "VAR"+text
                     break
                 else:
                     print(f"{YELLOW}Invalid input. Try again.{ENDC}")
-
     return matchingtable, MasterCodebook
 
 
@@ -207,10 +212,10 @@ def fitdatatoUltraData(data, UltraData):
     notinultradata = np.setdiff1d(union, columnsultradata)
 
     for column in notindata:
-        data[column] = np.NaN
+        data[column] = 999
 
     for column in notinultradata:
-        UltraData[column] = np.NaN
+        UltraData[column] = 999
 
     columnsdata = np.asarray(data.columns)
     columnsultradata = np.asarray(UltraData.columns)
@@ -220,10 +225,22 @@ def fitdatatoUltraData(data, UltraData):
     print("overlaps found")
 
     return(data, UltraData)
-    
 
 
+def setcolumntype(UltraData):
+    """Sets the right datatype for each columne."""
+    for column in UltraData.columns:
+        try:
+            UltraData[column] = pd.to_numeric(UltraData[column], downcast="float")
+        except ValueError:
+            pass
+        try:
+            UltraData[column] = pd.to_numeric(UltraData[column], downcast="integer")
+        except ValueError:
+            pass
+    return(UltraData)
     
+
 def main():
     description = "Fuses different data-tables to one big one and expands a codebook accordingly"
     cli_args = argparse.ArgumentParser(description=description, add_help=True)
@@ -261,7 +278,7 @@ def main():
 
         data = data.drop(columns=[
                                 "Befragten ID",
-                                "Angezeigter Name ",
+                                "Angezeigter Name",
                                 "Vorname",
                                 "Nachname",
                                 "Organisation",
@@ -305,13 +322,12 @@ def main():
         print("matchingtable application completed")
 
         data, UltraData = fitdatatoUltraData(data, UltraData)
-        
-
-        #To-Do: Kolonentypen ändern?????
 
         UltraData = UltraData.append(data)
         print("data added to UltraData")
-
+        
+        
+    UltraData = setcolumntype(UltraData)
     UltraData.to_csv(f"{ARGS.pathtosavingfolder}/UltraData.csv", index=False)
     MasterCodebook.to_csv(f"{ARGS.pathtosavingfolder}/MasterCodebook.csv", index=False)
 
