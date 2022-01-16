@@ -5,6 +5,8 @@ import copy
 import glob
 import os
 import sys
+from ast import literal_eval
+pd.set_option('mode.chained_assignment', None)
 
 
 def initialising(outputdirectory):
@@ -15,6 +17,8 @@ def initialising(outputdirectory):
 
     if os.path.exists(f"{outputdirectory}/MasterCodebook.csv") & os.path.exists(f"{outputdirectory}/UltraData.csv"):
         MasterCodebook = pd.read_csv(f"{outputdirectory}/MasterCodebook.csv")
+        # convert string representations of lists back to lists
+        MasterCodebook["Alternative Labels"] = MasterCodebook["Alternative Labels"].apply(lambda x: literal_eval(str(x)))
         UltraData = pd.read_csv(f"{outputdirectory}/UltraData.csv")   
     else:
         MasterCodebook = pd.DataFrame({
@@ -57,8 +61,8 @@ def deletewhitespaces(exportdata):
     return exportdata
 
 
-def expandMasterCodebook(exportdata, matchingtable, MasterCodebook):
-    #TODO innehaue, dasses frogt, ob meh das als alternatives lable will
+def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
+    #To-Do: innehaue, dasses frogt, ob meh das als alternatives lable will
     """Finds and matches Labels of the exported data with the labels in the MasterCodebook.
     New lables are added to the MasterCodebook and to the alternative labes of the new label."""
     print("find & match labels of exportdata and MasterCodebook")
@@ -78,14 +82,47 @@ def expandMasterCodebook(exportdata, matchingtable, MasterCodebook):
         #Das Label wird danach neu benannt &  das alte und neue Label kommen in's "matchingtable"
         #Das ganze kommt dann als neue Zeile ins "MasterCodebook"
         if not found:
-            z = copy.deepcopy(row)
-            z["Alternative Labels"] = [row["Label"]]
-            varnameneu = "VAR" + str((MasterCodebook.shape[0]+1))
-            matchingtable[z["Variable Name"]] = varnameneu
-            z["Variable Name"] = varnameneu
-            MasterCodebook = MasterCodebook.append(z)
-    
+            VIOLET = '\033[95m'
+            YELLOW = '\033[93m'
+            BOLD = '\033[1m'
+            ENDC = '\033[0m'
+            while True:
+                text = input(f"\n{VIOLET}New label found:{ENDC} \'{row['Label']}\'"
+                            f"\n{VIOLET}in:{ENDC} {exportfile}"
+                            f"\n{VIOLET}Type in an {BOLD}existing variable number{ENDC}{VIOLET} (i.e. {BOLD}'1'{ENDC}{VIOLET} for VAR1)"
+                            f" to add the label as alternative label or type {BOLD}'n'{ENDC}{VIOLET} to create a new variable: {ENDC}")
+                
+                if text == "n":
+                    z = copy.deepcopy(row)
+                    z["Alternative Labels"] = [row["Label"]]
+                    varnameneu = "VAR" + str((MasterCodebook.shape[0]+1))
+                    matchingtable[z["Variable Name"]] = varnameneu
+                    z["Variable Name"] = varnameneu
+                    MasterCodebook = MasterCodebook.append(z)
+                    break
+                elif isnumber(text):
+                    if int(text) > MasterCodebook.shape[0]:
+                        print(f"{YELLOW}Invalid variable name. Try again.{ENDC}")
+                        continue
+                    position = np.array(MasterCodebook["Variable Name"] == "VAR"+text)
+                    temp = MasterCodebook.loc[position]["Alternative Labels"][np.where(position)[0][0]]
+                    temp.append(row["Label"])
+                    MasterCodebook["Alternative Labels"].loc[np.where(position)[0][0]] = temp
+                    break
+                else:
+                    print(f"{YELLOW}Invalid input. Try again.{ENDC}")
+
     return matchingtable, MasterCodebook
+
+
+def isnumber(string):
+    number = False
+    try:
+        int(string)
+        number = True
+    except ValueError:
+        pass
+    return number
 
 
 def addmetadata(exportfile, data, UltraData):
@@ -211,7 +248,7 @@ def main():
                          "Fachbereich": "VAR8",
                          "Modulinfo": "VAR9"}
 
-        matchingtable, MasterCodebook = expandMasterCodebook(exportdata, matchingtable, MasterCodebook)
+        matchingtable, MasterCodebook = expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook)
 
         data = exportdata["Data"]
 
