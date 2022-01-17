@@ -1,0 +1,11 @@
+#To-Do: zu tode beschreiben
+#To-Do: anständigen Namen für das hier wählen (nicht expample)
+
+
+VAR11: {Group: 1, color_scheme: cividis, invert: True}
+VAR12: {Group: 1, color_scheme: cividis, invert: True}
+VAR20: {Group: 2}
+VAR30: {Group: 3}
+
+filters: {'Group 1' : 'VAR02 == 1', 'Others' : '(VAR02 == 2) | (VAR02 == 4)'}
+
