@@ -130,41 +130,62 @@ def isnumber(string):
     return number
 
 
-def addmetadata(exportfile, data, UltraData):
+def addmetadata(ARGS, exportfile, data, UltraData):
     """Exstracts the metadata out of the file's name (makes it nicer looking) and adds it to the data"""
     print("seraching for meta-information")
+    RED = '\033[31m'
+    VIOLET = '\033[95m'
+    YELLOW = '\033[93m'
+    BOLD = '\033[1m'
+    ENDC = '\033[0m'
+
     exportname = os.path.basename(exportfile)
 
-    exportname.split("_")
+    if ARGS.evaluationtype == "LE":
+        metainfo = {
+            "Studiengang": "",
+            "Jahr": "20" + exportname.split("_")[0][-2:],
+            "Semester": exportname.split("_")[0][:-2],
+            "Dozent": exportname.split("_")[2],
+            "Fachbereich": "",       
+            "Modulinfo": " ".join(exportname.split("_")[3:])[:-5]
+            }
 
-    metainfo = {
-        "Studiengang": "",
-        "Jahr": "20" + exportname.split("_")[0][-2:],
-        "Semester": exportname.split("_")[0][:-2],
-        "Dozent": exportname.split("_")[2],
-        "Fachbereich": "",       
-        "Modulinfo": " ".join(exportname.split("_")[3:])[:-5]
-        }
-
-    print("beautifying meta-information")
-    if (metainfo["Semester"] == "HeS") | (metainfo["Semester"] == "FrS"):
-        metainfo["Semester"] = metainfo["Semester"][:1] + metainfo["Semester"][-1:]
+        print("beautifying meta-information")
+        if (metainfo["Semester"] == "HeS") | (metainfo["Semester"] == "FrS"):
+            metainfo["Semester"] = metainfo["Semester"][:1] + metainfo["Semester"][-1:]
 
 
-    studiengang_fachbereich = exportname.split("_")[1]
+        studiengang_fachbereich = exportname.split("_")[1]
 
-    if studiengang_fachbereich[:3] == "Sek":
-        metainfo["Studiengang"] = " ".join(studiengang_fachbereich.split(" ")[:2])
-        metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[2:])
-    elif studiengang_fachbereich[:3] == "KGP":
-        metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
-        metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
-    elif studiengang_fachbereich[:3] == "Mas":
-        metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
-        metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
-    else:
-        raise ValueError(f"Studiengang nicht definiert:\nDatei: {exportname}\nStudiengang_Fachbereich: {studiengang_fachbereich}")
+        if studiengang_fachbereich[:3] == "Sek":
+            metainfo["Studiengang"] = " ".join(studiengang_fachbereich.split(" ")[:2])
+            metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[2:])
+        elif studiengang_fachbereich[:3] == "KGP":
+            metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
+            metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
+        elif studiengang_fachbereich[:3] == "Mas":
+            metainfo["Studiengang"] = studiengang_fachbereich.split(" ")[0]
+            metainfo["Fachbereich"] = " ".join(studiengang_fachbereich.split(" ")[1:])
+        else:
+            raise ValueError(f"Studiengang nicht definiert:\nDatei: {exportname}\nStudiengang_Fachbereich: {studiengang_fachbereich}")
     
+    elif ARGS.evaluationtype == "WB":
+        metainfo = {
+            "Studiengang": exportname.split("-")[0].strip(),
+            "Jahr": "20" + exportname.split("-")[1].strip(),
+            "Semester": 999,
+            "Dozent": exportname.split("-")[2].strip(),
+            "Fachbereich": 999,
+            "Modulinfo": " ".join(exportname.split("-")[3:])[:-5].replace("  ", " ")
+            }
+
+    else:
+        raise ValueError(f"\{RED}Ungültiger Evaluationstypus!{ENDC}\n"
+                         f"Bitte '\{YELLOW}LE'\{ENDC} für Lehrevaluation eingeben\n"
+                         f"Bitte '\{YELLOW}WB'\{ENDC} für interne Weiterbildung eingeben\n")
+
+
     check = (UltraData["VAR2"] == metainfo["Studiengang"]) &\
             (UltraData["VAR5"] == int(metainfo["Jahr"])) &\
             (UltraData["VAR6"] == metainfo["Semester"]) &\
@@ -174,6 +195,7 @@ def addmetadata(exportfile, data, UltraData):
     
     skip = False
     
+
     if check.any():
         skip = True
     else:
@@ -244,6 +266,8 @@ def setcolumntype(UltraData):
 def main():
     description = "Fuses different data-tables to one big one and expands a codebook accordingly"
     cli_args = argparse.ArgumentParser(description=description, add_help=True)
+    cli_args.add_argument('--evaluationtype', type=str, action='store', required=False, default="LE"
+                          help='Choose if the data is from a "Lehrevaluation" (=LE) or "interne Weiterbildung" (=WB)')
     cli_args.add_argument('--pathtodatafolder', type=str, action='store', required=True,
                           help='Path to the folders of the data.cvs-files that should be added to the UltraData.')
     cli_args.add_argument('--pathtosavingfolder', type=str, action='store', required=True,
@@ -276,7 +300,7 @@ def main():
 
         data = exportdata["Data"]
 
-        data = data.drop(columns=[
+        data = data.drop(errors="ignore", columns=[
                                 "Befragten ID",
                                 "Angezeigter Name",
                                 "Vorname",
@@ -310,7 +334,7 @@ def main():
                                 ])
         
 
-        data, skip = addmetadata(exportfile, data, UltraData)
+        data, skip = addmetadata(ARGS, exportfile, data, UltraData)
         
         if skip:
             continue
