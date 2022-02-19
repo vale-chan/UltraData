@@ -3,6 +3,7 @@ import argparse
 import os
 import shutil
 import yaml
+import pandas as pd
 
 
 def main():
@@ -14,7 +15,15 @@ def main():
                           help='Path to the topfolder, where the config.yml, template.tex and Ultradata and Mastercodebook are stored.')
     cli_args.add_argument('--reportfoldername', type=str, action='store', required=True,
                           help='Choose a name for the generated report folder (will become name of the report).')
+    cli_args.add_argument('--pathtodata', type=str, action='store', required=True,
+                          help='Path to the UltraData.cvs-files that should be used by niceplots')
+    cli_args.add_argument('--pathtocodebook', type=str, action='store', required=True,
+                          help="Path to the MasterCodebook to be used by niceplots.")
     ARGS = cli_args.parse_args()
+
+    #Codebook &  Ultradata einlesen
+    codebook = pd.read_csv(ARGS.pathtocodebook)
+    data = pd.read_csv(ARGS.pathtodata)
 
     # readin in config
     with open('fancyconfig.yaml', 'r') as f:
@@ -29,6 +38,35 @@ def main():
         for ii, line in enumerate(template):
             if f"__{key}__" in line:
                 template[ii] = line.replace(f"__{key}__", value)
+
+    # Zahlenwerte irgendwie in Bericht rein bekommen, sind einzelne Werte die berechnet werden
+    value = data[config["wert"][0]][4] + data[config["wert"][1]][8]
+    for ii, line in enumerate(template):
+        if "__value__" in line:
+            template[ii] = line.replace("__value__", str(value))
+    
+    # table template
+    table = "\\begin{table}[h!]\n" \
+            "\\onehalfspacing\n" \
+            "\\small\n" \
+            "\\begin{tabular}{L{0.02\\textwidth}L{0.58\\textwidth}R{0.15\\textwidth}R{0.15\\textwidth}}" \
+            "\\toprule" \
+            "\\multicolumn{2}{l}{Studiengang/Studienbereich} & Anzahl Evaluationen & $\\emptyset$ Anzahl Items\\\\\n" \
+            "\\midrule\n" \
+            "__content__" \
+            "\\bottomrule\n" \
+            "\\end{tabular}\n" \
+            "\\end{table}"
+    
+    content = "\\multicolumn{2}{l}{\\textbf{Sekundarstufe II} (Sek II)} & \\textbf{" + str(data[config["wert"][0]][4]) + "} & \\textbf{XX}\\\\\n" \
+              "& Allgemeinbildender Unterricht (ABU) Diplomstudiengang & XX & XX\\\\"
+    
+    #content in table einsetzten
+    table = table.replace("__content__", content)
+
+    for ii, line in enumerate(template):
+        if "__tabelle__" in line:
+            template[ii] = line.replace("__tabelle__", table)
     
     #TODO: calculate stuff
 
