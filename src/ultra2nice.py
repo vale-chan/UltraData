@@ -32,7 +32,7 @@ def main():
                          help='Optinal: Choose "True" or "False" to clear the cache. Necessary when plot sizing is changend.')               
     ARGS = cli_args.parse_args()
 
-    #Codebook einlsen
+    #Codebook &  Ultradata einlesen
     codebook = pd.read_csv(ARGS.pathtocodebook)
     data = pd.read_csv(ARGS.pathtodata)
 
@@ -40,8 +40,16 @@ def main():
     with open(ARGS.pathtoconfigfile, "r") as f:
         config = yaml.full_load(f)
 
-    with open(f"{os.path.dirname(__file__)}/niceconfig.yml", "r") as f:
+    if len(os.path.dirname(__file__)) == 0:
+        path = 'niceconfig.yml'
+    else:
+        path = f'{os.path.dirname(__file__)}/niceconfig.yml'
+
+    with open(path, 'r') as f:
         niceconfig = yaml.full_load(f)
+    
+    #with open(f"{os.path.dirname(__file__)}/niceconfig.yml", "r") as f:
+    #    niceconfig = yaml.full_load(f)
     
     #Filter in niceconfig überschreiben mit den in XXX'example'XXX definierten fildern
     niceconfig["filtser"] = config["filters"]
