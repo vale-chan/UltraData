@@ -266,7 +266,7 @@ def setcolumntype(UltraData):
 def main():
     description = "Fuses different data-tables to one big one and expands a codebook accordingly"
     cli_args = argparse.ArgumentParser(description=description, add_help=True)
-    cli_args.add_argument('--evaluationtype', type=str, action='store', required=False, default="LE"
+    cli_args.add_argument('--evaluationtype', type=str, action='store', required=False, default="LE",
                           help='Choose if the data is from a "Lehrevaluation" (=LE) or "interne Weiterbildung" (=WB)')
     cli_args.add_argument('--pathtodatafolder', type=str, action='store', required=True,
                           help='Path to the folders of the data.cvs-files that should be added to the UltraData.')
