@@ -1,0 +1,191 @@
+\documentclass[11pt]{article}
+\usepackage[german]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{lastpage}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{xcolor}
+\usepackage[headheight=2.25cm, left=3cm,right=2cm,top=3.5cm,bottom=2cm]{geometry}
+\setmainfont{Arial}
+
+
+
+
+   
+\begin{document}
+
+\begin{titlepage}
+
+\begin{tikzpicture}[overlay, remember picture]
+\node[anchor=north west, %anchor is upper left corner of the graphic
+      xshift=-14.61cm, %shifting around
+      yshift=-10.8cm] 
+     at (current page.north west) %left upper corner of the page
+     {\includegraphics[width=42cm]{Kreis}}; 
+\node[anchor=north west, %anchor is upper left corner of the graphic
+      xshift=15.98cm, %shifting around
+      yshift=-25.07cm] 
+     at (current page.north west) %left upper corner of the page
+     {\includegraphics[scale=.35]{PHSGlogow}}; 
+\end{tikzpicture}
+
+\begin{tikzpicture}[overlay, remember picture]
+\node[anchor=north west,
+      xshift=3cm,
+      yshift=-15cm,
+      align=left,
+      text width=14cm] 
+     at (current page.north west)
+     {{\color{white} \fontsize{35}{11}\selectfont\baselineskip=40pt Qualitätskultur und Qualitätsmanagement an der PHSG\par
+     \vspace{.8cm}
+     \color{white} \fontsize{18}{11}\selectfont Evaluationsbericht __untertitel__\par
+     \vspace{1.5cm}
+     \color{white} \fontsize{12.5}{11}\selectfont HE/QM\par}};
+\end{tikzpicture}
+
+\end{titlepage}
+
+
+\pagestyle{fancy}
+	\fancyhf{}
+	\renewcommand{\headrulewidth}{0pt}
+	\rhead{\includegraphics[scale=.35]{PHSGlogo}}
+	\fancyfoot[L]{\fontsize{9}{11} \selectfont HE/QM}
+	\fancyfoot[C]{\fontsize{9}{11} \selectfont __monat__ __jahr__}
+	\fancyfoot[R]{\fontsize{9}{11} \selectfont Seite \textbf{\thepage}\ von \textbf{\pageref{LastPage}}}
+
+
+
+\section{Zusammenfassung}
+In diesem Bericht sind die Daten aus der internen Weiterbildung \textit{Qualitätskultur und Qualitätsmanagement an der PHSG} aus der Winter 2022 Ausführung zusammengefasst. Für alle geschlossenen Fragen wurden die Antworten in Form eines Balkens dargestellt und der entsprechende Mittelwert, Standardabweichung und Antwortanzahl vermerkt. Die Anzahl fehlender Antworten sind unter dem Wert \textit{E} zu finden. Die Anzahl Teilnehmender und Rücklaufquote zur Evaluation kann der folgenden Tabelle entnommen werden.
+
+\begin{table}[h!]
+\onehalfspacing
+\begin{tabular}{R{0.3\textwidth}R{0.3\textwidth}R{0.3\textwidth}}
+\toprule
+Anzahl Teilnehmer & Anzahl Rückläufe & Rücklaufquote\\
+\midrule
+XX & XX & XX \%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+\section{Gesamtbeurteilung}
+\label{sec: Gesamtbeurteilung}
+\includegraphics[width=1\textwidth]{../__gruppe1__}
+
+\newpage
+\section{Vorbereitung und Inhalt des Kurses}
+\label{sec: Vorbereitung}
+\includegraphics[width=1\textwidth]{../__gruppe2__}
+\includegraphics[width=1\textwidth]{../__gruppe3__}
+\bigskip
+
+\begin{table}[h!]
+\small
+\onehalfspacing
+\begin{tabular}{L{0.7\textwidth}R{0.2\textwidth}}
+\toprule
+\multicolumn{2}{l}{\large \textbf{Was hat dir besonders gefallen?}}\\
+Zusammengefasste Aussagen & Anzahl Nennungen\\
+\midrule
+Thema \textbf{Auftritt}\newline XX & XX\\
+&\\
+Thema \textbf{Vorbereitung}\newline XX & XX\\
+&\\
+Thema \textbf{Tools}\newline XX & XX\\
+&\\
+Thema \textbf{Didaktik}\newline XX & XX\\
+&\\
+Thema \textbf{Inhalte}\newline XX & XX\\
+&\\
+Thema \textbf{Atmosphäre}\newline XX & XX\\
+\bottomrule
+\end{tabular}
+\end{table}
+\bigskip
+
+\begin{table}[p]
+\small
+\onehalfspacing
+\begin{tabular}{L{0.7\textwidth}R{0.2\textwidth}}
+\toprule
+\multicolumn{2}{l}{\large \textbf{Was hat dir gefehlt? Was könnte verbessert werden?}}\\
+Zusammengefasste Aussagen & Anzahl Nennungen\\
+\midrule
+Thema \textbf{Veranstaltung global}\newline XX & XX\\
+&\\
+Thema \textbf{Auftritt}\newline XX & XX\\
+&\\
+Thema \textbf{Vorbereitung}\newline XX & XX\\
+&\\
+Thema \textbf{Tools}\newline XX & XX\\
+&\\
+Thema \textbf{Didaktik}\newline XX & XX\\
+&\\
+Thema \textbf{Inhalte}\newline XX & XX\\
+&\\
+Thema \textbf{Transfer}\newline XX & XX\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\newpage
+\section{Durchführung des Kurses}
+\label{sec: Durchführung}
+\includegraphics[width=1\textwidth]{../__gruppe4__}
+\bigskip
+
+\begin{table}[h!]
+\small
+\onehalfspacing
+\begin{tabular}{L{0.7\textwidth}R{0.2\textwidth}}
+\toprule
+\multicolumn{2}{l}{\large \textbf{Rückmeldung zu Dozierenden}}\\
+Zusammengefasste Aussagen & Anzahl Nennungen\\
+\midrule
+Thema \textbf{Veranstaltung global}\newline XX & XX\\
+&\\
+Thema \textbf{Auftritt}\newline XX & XX\\
+&\\
+Thema \textbf{Inhalte}\newline XX & XX\\
+&\\
+Thema \textbf{Zur Person}\newline XX & XX\\
+&\\
+Thema \textbf{Dank}\newline XX & XX\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\section{Lernzuwachs/Transfer}
+\label{sec: Lernzuwachs-Transfer}
+\includegraphics[width=1\textwidth]{../__gruppe5__}
+\bigskip
+
+\begin{table}[h!]
+\small
+\onehalfspacing
+\begin{tabular}{L{0.7\textwidth}R{0.2\textwidth}}
+\toprule
+\multicolumn{2}{l}{\large \textbf{Bemerkungen zu Lernzuwachs/Transfer}}\\
+Zusammengefasste Aussagen & Anzahl Nennungen\\
+\midrule
+Thema \textbf{Inhalte}\newline XX & XX\\
+&\\
+Thema \textbf{Transfer}\newline XX & XX\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
+
