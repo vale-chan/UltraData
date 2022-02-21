@@ -19,6 +19,8 @@ def main():
                           help='Path to the UltraData.cvs-files that should be used by niceplots')
     cli_args.add_argument('--pathtocodebook', type=str, action='store', required=True,
                           help="Path to the MasterCodebook to be used by niceplots.")
+    cli_args.add_argument('--reporttype', type=str, action='store', required=False, default="LE",
+                          help='Type "WB" to create a report for "interne Weiterbildung", default report type is set to "LE" ("Lehrevaluation")')
     ARGS = cli_args.parse_args()
 
     #Codebook &  Ultradata einlesen
@@ -30,7 +32,7 @@ def main():
         config = yaml.load(f, yaml.FullLoader)
 
     # read in template
-    with open(f"{scriptdirectory}/../Data/template.tex", "r") as f:
+    with open(f"{scriptdirectory}/../Data/template{ARGS.reporttype}.tex", "r") as f:
         template = f.readlines()
     
     # replace placeholders in template
