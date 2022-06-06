@@ -12,7 +12,8 @@ def main():
     description = "XXX"
     cli_args = argparse.ArgumentParser(description=description, add_help=True)
     cli_args.add_argument('--pathtotopfolder', type=str, action='store', required=True,
-                          help='Path to the topfolder, where the config.yml, template.tex and Ultradata and Mastercodebook are stored.')
+                          help='
+                          Path to the topfolder, where the config.yml, template.tex and Ultradata and Mastercodebook are stored.')
     cli_args.add_argument('--reportfoldername', type=str, action='store', required=True,
                           help='Choose a name for the generated report folder (will become name of the report).')
     cli_args.add_argument('--pathtodata', type=str, action='store', required=True,

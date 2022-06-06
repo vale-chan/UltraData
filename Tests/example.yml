@@ -7,5 +7,5 @@ VAR12: {Group: 1, color_scheme: cividis, invert: True}
 VAR20: {Group: 2}
 VAR30: {Group: 3}
 
-filters: {'Group 1' : 'VAR02 == 1', 'Others' : '(VAR02 == 2) | (VAR02 == 4)'}
+filters: {'Group 1' : 'VAR01 == 1', 'Others' : '(VAR02 == 2) | (VAR02 == 4)'}
 

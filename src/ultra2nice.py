@@ -18,10 +18,10 @@ def main():
                           help="Path to the config file that overrides the defaults of the nice-plot config file")
     cli_args.add_argument('--saveto', type=str, action='store', required=False, default="",
                           help='Path to where the plots shoulde be saved')
-    cli_args.add_argument('--plottype', type=str, action='store', required=True,
-                          help="Choose the desired plot type (bars, lines, histograms")
     cli_args.add_argument('--outputname', type=str, action='store', required=True,
                           help='Choose the name for your plots')
+    cli_args.add_argument('--plottype', type=str, action='store', required=True,
+                          help="Choose the desired plot type (bars, lines, histograms")
     cli_args.add_argument('--saveas', type=str, action='store', required=True,
                           help="Choose the desired saving format (pdf, png, svg")
     cli_args.add_argument('--timelabels', type=str, action='store', required=False, default=[""], nargs='+',
