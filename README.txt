@@ -37,7 +37,7 @@ ultra2nice - plotting of data
 Run „python3 ultra2nice.py --help“ to get a list of arguments that UltraData accepts:
 
 --pathtodata: Path to the „UltraData.cvs“ which niceplots should be using.
---pathtocodebook: Path to the „MasterCodebook.cvs“ which niceplots should be using. niceplots needs the metainformation from the „MasterCodebook.cvs“ to create labels, etc. for the plots. It will creat a new codebook with additional metainformation. For more detailled informations go to https://github.com/DZuercher/nice-plots
+--pathtocodebook: Path to the „MasterCodebook.cvs“ which niceplots should be using. niceplots needs the metainformation from the „MasterCodebook.cvs“ to create labels, etc. for the plots. It will create a new codebook with additional metainformation. For more detailled informations go to https://github.com/DZuercher/nice-plots
 --pathtoconfigfile: The config-file contains all the variables that need to be plotted togehter wiht informations like the colour scheme, as well as filters, etc.. This file is not the „niceconfig“-file, which contains the style-informations for the plots.
 --saveto: Argument to specify the directory for saving the plots.
 --plottype: Choose the desired plot type; one can choose between „bars“, „lines“, „histograms“, and „timeline“.

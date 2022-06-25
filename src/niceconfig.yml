@@ -64,10 +64,10 @@ format: png
 delimiter : ','
 
 # Global fontsize in plots
-fontsize : 15
+fontsize : 20
 
 # fontsize for stats and legend
-fontsize_stats : 12
+fontsize_stats : 15
 
 # If True the label categories are plotted from largest to smallest.
 # applies to lineplots and barplots
@@ -87,20 +87,20 @@ unit : ''
 color_scheme : 'RdYlGn'
 
 # Height of the bars in the plots
-height : 1 # in inches
+height : 2 # in inches
 
 # Distance between bars for different categories within a question
 # and also distance to legend
-dist : 0.3 # in inches
+dist : 0.5 # in inches
 
 # Distance between bars for different questions
-major_dist : 0.1 # in inches
+major_dist : 0.5 # in inches
 
 # Color of the numbers in the bars
 bar_text_color: 'black'
 
 # Distance between labels and question text.
-padding : 0.1 # in inches
+padding : 2.5 # in inches
 
 
 # LINEPLOTS OPTIONS

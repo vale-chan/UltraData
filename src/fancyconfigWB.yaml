@@ -1,0 +1,17 @@
+##Textfragmente
+untertitel: "Evaluationsbericht"
+studienjahr: "HS21/FS22"
+monat: "Februar"
+jahr: "2022"
+saison: "Winter"
+
+##Plots
+gruppe1: "bars_0.pdf"
+gruppe2: "bars_1.pdf"
+gruppe3: "bars_2.pdf"
+gruppe4: "bars_3.pdf"
+gruppe5: "bars_4.pdf"
+
+##Zu berechnende Werte
+wert: ["VAR5", "VAR10"]
+
