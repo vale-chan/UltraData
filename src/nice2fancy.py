@@ -67,9 +67,6 @@ def main():
             template[ii] = line.replace("__moreOrLess__", str(value))
 
 
-            
-    
-
 
     # table template
     table = "\\begin{table}[h!]\n" \
