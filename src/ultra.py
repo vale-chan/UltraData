@@ -90,7 +90,7 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                 text = input(f"\n{VIOLET}New label found:{ENDC} \'{row['Label']}\'"
                             f"\n{VIOLET}in:{ENDC} {exportfile}"
                             f"\n{VIOLET}Type in an {BOLD}existing variable number{ENDC}{VIOLET} (i.e. {BOLD}'1'{ENDC}{VIOLET} for VAR1)"
-                            f" to add the label as alternative label or type {BOLD}'n'{ENDC}{VIOLET} to create a new variable: {ENDC}")
+                            f" to add the label as alternative label, {BOLD}'s'{ENDC}{VIOLET} to skip the label or {BOLD}'n'{ENDC}{VIOLET} to create a new variable: {ENDC}")
                 
                 if text == "n":
                     z = copy.deepcopy(row)
@@ -100,6 +100,10 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                     z["Variable Name"] = varnameneu
                     MasterCodebook = MasterCodebook.append(z, ignore_index=True)
                     break
+                elif text == 's':
+                    print(f"{YELLOW}Skipping label!{ENDC}")
+                    matchingtable[z["Variable Name"]] = None
+                    continue
                 elif isnumber(text):
                     if int(text) > MasterCodebook.shape[0]:
                         print(f"{YELLOW}Invalid variable name. Try again.{ENDC}")
@@ -342,6 +346,16 @@ def main():
         data = recodevalues(data)
 
         print("applying matchingtable")
+        # drop data that should be skipped
+        matchingtable_ = {}
+        for key, val in matchingtable.items():
+            if val is None:
+                data.drop(columns=key, inplace=True)
+            else:
+                matchingtable_[key] = val
+        matchingtable = matchingtable_
+
+        # rename
         data = data.rename(columns=matchingtable)
         print("matchingtable application completed")
 
