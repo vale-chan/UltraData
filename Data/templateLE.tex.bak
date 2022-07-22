@@ -47,10 +47,10 @@
       align=left,
       text width=14cm] 
      at (current page.north west)
-     {{\color{white} \fontsize{35}{11}\selectfont\baselineskip=40pt Ergebnisse aus der Lehrevaluation\par
-     \vspace{.8cm}
+     {{\color{white} \fontsize{35}{11}\selectfont\baselineskip=40pt Ergebnisse aus der\newline Lehrevaluation\par
+     \vspace{1cm}
      \color{white} \fontsize{18}{11}\selectfont Evaluationsbericht __aktuelleStudienjahr__\par
-     \vspace{1.5cm}
+     \vspace{.5cm}
      \color{white} \fontsize{12.5}{11}\selectfont HE\&QM\par}};
 \end{tikzpicture}
 
@@ -71,35 +71,35 @@
 \section{Übersicht durchgeführter Evaluationen}
 \label{sec: übersicht}
 Im Studienjahr __aktuelleStudienjahr__ wurden an der PHSG insgesamt __totalEvaluations__ durchgeführt; das sind __relativeChangeTotalEvalution__ \% __moreOrLess__ __letztesStudienjahr__.
-Der untenstehenden Tabelle kann entnommen werden, wie viele elektronische Lehrevaluationen im Studienjahr __aktuelleStudienjahr__ an der Pädagogischen Hochschule St. Gallen insgesamt und in den jeweiligen Studiengängen und dazugehörigen Fachbereichen einzeln durchgeführt wurden.
+Der untenstehenden Abbildung kann entnommen werden, wie viele elektronische Lehrevaluationen in den letzten fünf Studienjahre an der Pädagogischen Hochschule St. Gallen insgesamt durchgeführt wurden.
 
-neue Graphik
+\includegraphics[width=1\textwidth]{../histogramms/__uebersichtAnzahlEvaluationen__}
 
 \newpage
 \section{Fixierte Items}
 \label{sec: fixierteItems}
-Im Studienjahr __aktuelleStudienjahr__ hat das Rektorat XXXAnzahl ItemsXXX für die elektronische Lehrevaluation fixiert. Für jedes dieser Items ist im folgenden einzeln der Mittelwert und die Standardabweichung über die letzten 10 Semester abgebildet.
+Im Studienjahr __aktuelleStudienjahr__ hat das Rektorat __anzahlFixierteItems__ für die elektronische Lehrevaluation fixiert. Für jedes dieser Items ist im folgenden einzeln der Mittelwert und die Standardabweichung über die letzten fünf Studienjahre abgebildet.
 
 \textbf{TIMELINE INNEHAUE}
 \bigskip
 
-\includegraphics[width=1\textwidth]{../__item1__}
+\includegraphics[width=1\textwidth]{../bars/__item1__}
 
-\includegraphics[width=1\textwidth]{../__item2__}
+\includegraphics[width=1\textwidth]{../bars/__item2__}
 
-\includegraphics[width=1\textwidth]{../__item3__}
+\includegraphics[width=1\textwidth]{../bars/__item3__}
 
-\includegraphics[width=1\textwidth]{../__item4__}
+\includegraphics[width=1\textwidth]{../bars/__item4__}
 
-\includegraphics[width=1\textwidth]{../__item5__}
+\includegraphics[width=1\textwidth]{../bars/__item5__}
 
-\includegraphics[width=1\textwidth]{../__item6__}
+\includegraphics[width=1\textwidth]{../bars/__item6__}
 
-\includegraphics[width=1\textwidth]{../__item7__}
+\includegraphics[width=1\textwidth]{../bars/__item7__}
 
-\includegraphics[width=1\textwidth]{../__item8__}
+\includegraphics[width=1\textwidth]{../bars/__item8__}
 
-\includegraphics[width=1\textwidth]{../__item9__}
+\includegraphics[width=1\textwidth]{../bars/__item9__}
 
 
 

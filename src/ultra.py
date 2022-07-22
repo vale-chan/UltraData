@@ -67,7 +67,6 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
     print("find & match labels of exportdata and MasterCodebook")
     for _,row in exportdata["VariableView"].iterrows():
         exportlabel = row["Label"]
-        print(row["Variable Name"])
         found = False
 
         #Schaut, ob das Label schon irgendwo in den alternativen Labels vorkommt.
@@ -243,6 +242,7 @@ def fitdatatoUltraData(data, UltraData):
     columnsultradata = np.asarray(UltraData.columns)
 
     #Kontrolliert, ob die Kolonnen "data" und "UltraData" gleich sind
+ 
     assert np.array_equal(np.sort(columnsdata), np.sort(columnsultradata))
     print("overlaps found")
 

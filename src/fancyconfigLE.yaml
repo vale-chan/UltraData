@@ -1,0 +1,24 @@
+##Textfragmente
+#untertitel: "Evaluationsbericht"
+aktuelleStudienjahr: "HS21/FS22"
+letztesStudienjahr: "HS20/FS21"
+monat: "August"
+jahr: "2022"
+anzahlFixierteItems: "5"
+#saison: "Winter"
+
+##Plots
+uebersichtAnzahlEvaluationen: "histogramms_0.pdf"
+item1: "bars_0.pdf"
+item2: "bars_1.pdf"
+item3: "bars_2.pdf"
+item4: "bars_3.pdf"
+item5: "bars_4.pdf"
+item6: "bars_4.pdf"
+item7: "bars_4.pdf"
+item8: "bars_4.pdf"
+item9: "bars_4.pdf"
+
+##Zu berechnende Werte
+wert: ["VAR5", "VAR10"]
+

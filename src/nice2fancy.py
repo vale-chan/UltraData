@@ -11,6 +11,8 @@ def main():
 
     description = "XXX"
     cli_args = argparse.ArgumentParser(description=description, add_help=True)
+    cli_args.add_argument('--reporttype', type=str, action='store', required=False, default="LE",
+                          help='Choose if the data is from a "Lehrevaluation" (=LE) or "interne Weiterbildung" (=WB)')
     cli_args.add_argument('--pathtotopfolder', type=str, action='store', required=True,
                           help='Path to the topfolder, where the config.yml, template.tex and Ultradata and Mastercodebook are stored.')
     cli_args.add_argument('--reportfoldername', type=str, action='store', required=True,
@@ -43,20 +45,20 @@ def main():
     #value = data[config["wert"][0]][4] + data[config["wert"][1]][8]
     for ii, line in enumerate(template):
         if "__totalEvaluations__" in line:
-            value = data[((data.VAR5 == int(config["jahr"])) & (data.VAR6 == "FS")) & ((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "HS"))].shape[0]
+            value = data[((data.VAR5 == int(config["jahr"])) & (data.VAR6 == "FS")) | ((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "HS"))].shape[0]
             template[ii] = line.replace("__totalEvaluations__", str(value))
     
     for ii, line in enumerate(template):
         if "__relativeChangeTotalEvalution__" in line:
-            evaluations_current_year = data[((data.VAR5 == int(config["jahr"])) & (data.VAR6 == "FS")) & ((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "HS"))].shape[0]
-            evaluations_last_year = data[((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "FS")) & ((data.VAR5 == (int(config["jahr"]) - 2)) & (data.VAR6 == "HS"))].shape[0]
-            value = ((evaluations_current_year / evaluations_last_year) - 1) * 100
+            evaluations_current_year = data[((data.VAR5 == int(config["jahr"])) & (data.VAR6 == "FS"))  |  ((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "HS"))].shape[0]
+            evaluations_last_year = data[((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "FS"))  |  ((data.VAR5 == (int(config["jahr"]) - 2)) & (data.VAR6 == "HS"))].shape[0]
+            value = (round((evaluations_current_year / evaluations_last_year),2) - 1) * 100
             template[ii] = line.replace("__relativeChangeTotalEvalution__", str(value))
     
     for ii, line in enumerate(template):
         if "__moreOrLess__" in line:
-            evaluations_current_year = data[((data.VAR5 == int(config["jahr"])) & (data.VAR6 == "FS")) & ((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "HS"))].shape[0]
-            evaluations_last_year = data[((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "FS")) & ((data.VAR5 == (int(config["jahr"]) - 2)) & (data.VAR6 == "HS"))].shape[0]
+            evaluations_current_year = data[((data.VAR5 == int(config["jahr"])) & (data.VAR6 == "FS"))  |  ((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "HS"))].shape[0]
+            evaluations_last_year = data[((data.VAR5 == (int(config["jahr"]) - 1)) & (data.VAR6 == "FS"))  |  ((data.VAR5 == (int(config["jahr"]) - 2)) & (data.VAR6 == "HS"))].shape[0]
             
             if evaluations_current_year > evaluations_last_year:
                 value = "mehr als im Studienjahr"
