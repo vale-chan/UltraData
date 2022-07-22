@@ -52,7 +52,7 @@ def main():
     #    niceconfig = yaml.full_load(f)
     
     #Filter in niceconfig überschreiben mit den in XXX'example'XXX definierten fildern
-    niceconfig["filtser"] = config["filters"]
+    niceconfig["filters"] = config["filters"]
     
     #add columns to the codebook for niceplots to plot nice plots
     codebook[niceconfig["block_id_label"]] = -1
