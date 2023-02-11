@@ -10,7 +10,7 @@ def main():
     description = "Prepares the MasterCodebook to be used in 'niceplots' and generates the plots."
 
     cli_args = argparse.ArgumentParser(description=description, add_help=True)
-    cli_args.add_argument('--pathtodata', type=str, action='store', required=True,
+    cli_args.add_argument('--pathtodata', type=str, action='store', required=True, nargs='+',
                           help='Path to the UltraData.cvs-files that should be used by niceplots')
     cli_args.add_argument('--pathtocodebook', type=str, action='store', required=True,
                           help="Path to the MasterCodebook to be used by niceplots.")
@@ -21,7 +21,7 @@ def main():
     cli_args.add_argument('--outputname', type=str, action='store', required=True,
                           help='Choose the name for your plots')
     cli_args.add_argument('--plottype', type=str, action='store', required=True,
-                          help="Choose the desired plot type (bars, lines, histograms")
+                          help="Choose the desired plot type (bars, lines, histograms, timeline)")
     cli_args.add_argument('--saveas', type=str, action='store', required=True,
                           help="Choose the desired saving format (pdf, png, svg")
     cli_args.add_argument('--timelabels', type=str, action='store', required=False, default=[""], nargs='+',
@@ -34,7 +34,7 @@ def main():
 
     #Codebook &  Ultradata einlesen
     codebook = pd.read_csv(ARGS.pathtocodebook)
-    data = pd.read_csv(ARGS.pathtodata)
+    # data = pd.read_csv(ARGS.pathtodata)
 
     #configfile einlesen
     with open(ARGS.pathtoconfigfile, "r") as f:
@@ -76,8 +76,8 @@ def main():
     
     #last main here is the function "main()"
     from niceplots.main import main
-
-    main(ARGS.plottype, [ARGS.pathtodata], niceconfig, codebook, ARGS.outputname, ARGS.clearchache, ARGS.saveas, ARGS.timelabels, ARGS.verbosity, ARGS.saveto)
+    
+    main(ARGS.plottype, ARGS.pathtodata, niceconfig, codebook, ARGS.outputname, ARGS.clearchache, ARGS.saveas, ARGS.timelabels, ARGS.verbosity, ARGS.saveto)
 
 if __name__ == "__main__":
     main()
