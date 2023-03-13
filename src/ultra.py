@@ -1,3 +1,4 @@
+from logging import Logger
 from pickle import TRUE
 import pandas as pd
 import numpy as np
@@ -16,11 +17,10 @@ def initialising(outputdirectory):
     or starts loading an already existing MasterCodebook and UltraData"""
     print("STARTING ULTRADATA!  ＼(〇_ｏ)／")
 
-    if os.path.exists(f"{outputdirectory}/MasterCodebook.csv") & os.path.exists(f"{outputdirectory}/UltraData.csv"):
+    if os.path.exists(f"{outputdirectory}/MasterCodebook.csv"):
         MasterCodebook = pd.read_csv(f"{outputdirectory}/MasterCodebook.csv")
         # convert string representations of lists back to lists
         MasterCodebook["Alternative Labels"] = MasterCodebook["Alternative Labels"].apply(lambda x: literal_eval(str(x)))
-        UltraData = pd.read_csv(f"{outputdirectory}/UltraData.csv")   
     else:
         MasterCodebook = pd.DataFrame({
             "Variable Name": ["VAR1", "VAR2", "VAR3", "VAR4", "VAR5", "VAR6", "VAR7", "VAR8", "VAR9"],
@@ -32,7 +32,9 @@ def initialising(outputdirectory):
             "Missing Code": [999, 999, 999, 999, 999, 999, 999, 999, 999]
             })
         print("initialised empty MasterCodebook: The Beginning Part I")
-
+    if os.path.exists(f"{outputdirectory}/UltraData.csv"):
+        UltraData = pd.read_csv(f"{outputdirectory}/UltraData.csv")   
+    else:
         UltraData = pd.DataFrame({
             "VAR1": [],
             "VAR2": [],
@@ -60,11 +62,14 @@ def deletewhitespaces(exportdata):
     return exportdata
 
 
-def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
+def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook, skip_flag=False):
     #To-Do: innehaue, dasses frogt, ob meh das als alternatives lable will
     """Finds and matches Labels of the exported data with the labels in the MasterCodebook.
     New lables are added to the MasterCodebook and to the alternative labes of the new label."""
     print("find & match labels of exportdata and MasterCodebook")
+    skip_all = False
+    if skip_flag:
+        skip_all = True
     for _,row in exportdata["VariableView"].iterrows():
         exportlabel = row["Label"]
         found = False
@@ -80,18 +85,36 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
         #Wenn Eintrag nicht gefunden wurde, wird das Label zu den alternativen Labels hinzugefügt.
         #Das Label wird danach neu benannt & das alte und neue Label kommen in's "matchingtable"
         #Das ganze kommt dann als neue Zeile ins "MasterCodebook"
+
         if not found:
             VIOLET = '\033[95m'
             YELLOW = '\033[93m'
             BOLD = '\033[1m'
             ENDC = '\033[0m'
             while True:
+                if skip_all:
+                    z = copy.deepcopy(row)
+                    print(f"{YELLOW}Skipping label!{ENDC}")
+                    matchingtable[z["Variable Name"]] = None
+                    break
                 text = input(f"\n{VIOLET}New label found:{ENDC} \'{row['Label']}\'"
                             f"\n{VIOLET}in:{ENDC} {exportfile}"
                             f"\n{VIOLET}Type in an {BOLD}existing variable number{ENDC}{VIOLET} (i.e. {BOLD}'1'{ENDC}{VIOLET} for VAR1)"
-                            f" to add the label as alternative label or type {BOLD}'n'{ENDC}{VIOLET} to create a new variable: {ENDC}")
-                
-                if text == "n":
+                            f" to add the label as alternative label, {BOLD}'s'{ENDC}{VIOLET} to skip the label or {BOLD}'n'{ENDC}{VIOLET} to create a new variable: {ENDC}")
+                if text == "S":
+                    skip_all = True
+                    z = copy.deepcopy(row)
+                    print(f"{YELLOW}Skipping label!{ENDC}")
+                    matchingtable[z["Variable Name"]] = None
+                    break
+                elif text == "S!":
+                    skip_all = True
+                    skip_flag = True
+                    z = copy.deepcopy(row)
+                    print(f"{YELLOW}Skipping label!{ENDC}")
+                    matchingtable[z["Variable Name"]] = None
+                    break
+                elif text == "n":
                     z = copy.deepcopy(row)
                     z["Alternative Labels"] = [row["Label"]]
                     varnameneu = "VAR" + str((MasterCodebook.shape[0]+1))
@@ -99,7 +122,10 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                     z["Variable Name"] = varnameneu
                     MasterCodebook = MasterCodebook.append(z, ignore_index=True)
                     break
-                elif text == "S":
+                elif text == 's':
+                    z = copy.deepcopy(row)
+                    print(f"{YELLOW}Skipping label!{ENDC}")
+                    matchingtable[z["Variable Name"]] = None
                     break
                 elif isnumber(text):
                     if int(text) > MasterCodebook.shape[0]:
@@ -118,7 +144,7 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                     break
                 else:
                     print(f"{YELLOW}Invalid input. Try again.{ENDC}")
-    return matchingtable, MasterCodebook
+    return matchingtable, MasterCodebook, skip_flag
 
 
 def isnumber(string):
@@ -279,6 +305,7 @@ def main():
     MasterCodebook, UltraData = initialising(ARGS.pathtosavingfolder)
 
     print("starting Mega-Process")
+    skip_flag = False
     for exportfile in glob.glob(f"{ARGS.pathtodatafolder}/*.xlsx"):
         print(f"working on {exportfile}")
         
@@ -286,6 +313,11 @@ def main():
         print(f"sheets scanned")
 
         exportdata = deletewhitespaces(exportdata)
+
+        # check that there are no duplicate questions
+        variables = exportdata["VariableView"]["Variable Name"]
+        if not (variables.unique().size == variables.size):
+            Logger.critical("Your Codebook contains duplicate entries! Aborting.")
         
         print("generating matchingtable")
         matchingtable = {"DbID": "VAR1",
@@ -298,7 +330,7 @@ def main():
                          "Fachbereich": "VAR8",
                          "Modulinfo": "VAR9"}
 
-        matchingtable, MasterCodebook = expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook)
+        matchingtable, MasterCodebook, skip_flag = expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook, skip_flag)
 
         data = exportdata["Data"]
 
@@ -344,6 +376,16 @@ def main():
         data = recodevalues(data)
 
         print("applying matchingtable")
+        # drop data that should be skipped
+        matchingtable_ = {}
+        for key, val in matchingtable.items():
+            if val is None:
+                data.drop(columns=key, inplace=True)
+            else:
+                matchingtable_[key] = val
+        matchingtable = matchingtable_
+
+        # rename
         data = data.rename(columns=matchingtable)
         print("matchingtable application completed")
 
@@ -354,6 +396,7 @@ def main():
         
         
     UltraData = setcolumntype(UltraData)
+    UltraData = UltraData.reindex(MasterCodebook["Variable Name"], axis=1)
     UltraData.to_csv(f"{ARGS.pathtosavingfolder}/UltraData.csv", index=False)
     MasterCodebook.to_csv(f"{ARGS.pathtosavingfolder}/MasterCodebook.csv", index=False)
 
