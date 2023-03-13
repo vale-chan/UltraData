@@ -4,5 +4,7 @@
 /Data/templateWB.log
 /Data/templateWB.synctex.gz
 /Data/templateWB.xdv
+/Data/*.aux
+/Data/*.log
 
 

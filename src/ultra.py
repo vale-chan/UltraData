@@ -99,6 +99,8 @@ def expandMasterCodebook(exportfile, exportdata, matchingtable, MasterCodebook):
                     z["Variable Name"] = varnameneu
                     MasterCodebook = MasterCodebook.append(z, ignore_index=True)
                     break
+                elif text == "S":
+                    break
                 elif isnumber(text):
                     if int(text) > MasterCodebook.shape[0]:
                         print(f"{YELLOW}Invalid variable name. Try again.{ENDC}")
