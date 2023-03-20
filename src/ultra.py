@@ -1,4 +1,3 @@
-from logging import Logger
 from pickle import TRUE
 import pandas as pd
 import numpy as np
@@ -317,8 +316,11 @@ def main():
         # check that there are no duplicate questions
         variables = exportdata["VariableView"]["Variable Name"]
         if not (variables.unique().size == variables.size):
-            Logger.critical("Your Codebook contains duplicate entries! Aborting.")
-        
+            raise Exception("Your Data contains duplicate variables! Aborting.")
+        questions = exportdata["VariableView"]["Label"]
+        if not (questions.unique().size == questions.size):
+            raise Exception("Your Data contains duplicate questions! Aborting.")
+
         print("generating matchingtable")
         matchingtable = {"DbID": "VAR1",
                          "Studiengang": "VAR2",

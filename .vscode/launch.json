@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "ultra.py",
+            "type": "python",
+            "python": "/Users/vale-sama/venv/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/ultra.py",
+            "args": ["--evaluationtype", "WB"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "ultra2nice.py",
+            "type": "python",
+            "python": "/Users/vale-sama/venv/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/ultra2nice.py",
+            "args": ["--pathtodata", "/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/QM@PHSG/Durchführungen/Winter2022/Evaluation/DataWinter22.csv", "/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/QM@PHSG/Durchführungen/Sommer2022/Evaluation/DataSommer22.csv", "--pathtocodebook=/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/QM@PHSG/Durchführungen/Sommer2022/Evaluation/CodebookSommer22.csv", "--pathtoconfigfile=/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/QM@PHSG/Durchführungen/Sommer2022/Evaluation/niceconfig.yml", "--saveto=/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/QM@PHSG/Durchführungen/timeTest", "--outputname=timeTest", "--plottype=timeline", "--timelabels", "HS22",  "FS22", "--saveas=pdf"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "ultra.py FS21",
+            "type": "python",
+            "python": "/Users/vale-sama/venv/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/ultra.py",
+            "args": ["--evaluationtype=LE", "--pathtodatafolder=/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/Projekte/CovidWorkshop/Datenvergleich/FS21", "--pathtosavingfolder=/Users/vale-sama/Library/CloudStorage/OneDrive-PadagogischeHochschuleSt.Gallen/Projekte/CovidWorkshop/Datenvergleich/FS21"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }        
+    ]
+}
