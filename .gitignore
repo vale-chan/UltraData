@@ -1,10 +1,7 @@
-/Data/templateWB.aux
-/Data/templateWB.fdb_latexmk
-/Data/templateWB.fls
-/Data/templateWB.log
-/Data/templateWB.synctex.gz
-/Data/templateWB.xdv
-/Data/*.aux
-/Data/*.log
-
-
+**/*.aux
+**/*.fdb_latexmk
+**/*.fls
+**/*.log
+**/*.synctex.gz
+**/*.xdv
+.vscode/launch.json
